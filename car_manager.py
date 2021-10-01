@@ -1,4 +1,5 @@
 from car import Car
+from turtle import Turtle
 import random
 
 COLORS = ["red", "orange", "yellow", "green", "blue", "purple"]
@@ -8,7 +9,7 @@ START_CARS = 10
 CAR_SPAWN_PAUSE = 10
 
 SPAWN_Y_RANGE_FROM = -250
-SPAWN_Y_RANGE_TO = 270
+SPAWN_Y_RANGE_TO = 250
 SPAWN_X = 340
 
 END_X = -350
@@ -17,6 +18,7 @@ END_X = -350
 class CarManager:
     def __init__(self):
         self.cars = []
+        self.level = 0
         self.speed = STARTING_MOVE_DISTANCE
         self.pause = CAR_SPAWN_PAUSE
         self.create_scene()
@@ -24,7 +26,7 @@ class CarManager:
     def create_scene(self):
         for _ in range(START_CARS):
             self.create_car()
-            for _ in range(CAR_SPAWN_PAUSE):
+            for _ in range(CAR_SPAWN_PAUSE - self.level):
                 self.move_cars()
 
     def create_car(self):
@@ -41,9 +43,15 @@ class CarManager:
                 self.cars.remove(car)
         self.pause -= 1
         if self.pause == 0:
-            self.pause = CAR_SPAWN_PAUSE
+            self.pause = max(CAR_SPAWN_PAUSE - self.level, 1)
             self.create_car()
 
     def level_up(self):
         self.speed += MOVE_INCREMENT
-        self.create_scene()
+        self.level += 1
+
+    def is_collision(self, player: Turtle):
+        for car in self.cars:
+            if abs(car.xcor() - player.xcor()) < 30 and abs(car.ycor() - player.ycor()) < 20:
+                return True
+        return False
